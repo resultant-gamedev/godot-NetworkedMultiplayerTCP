@@ -34,7 +34,33 @@ bool NetworkedMultiplayerTCP::is_refusing_new_connections() const {
 }
 
 void NetworkedMultiplayerTCP::poll() {
-  // TODO
+    ERR_FAIL_COND(!active);
+
+    while(true) {
+
+      if(!active) {
+        return;
+      }
+
+      switch( stream_peer->get_status() ) {
+        case StreamPeerTCP::STATUS_NONE:
+          connection_status=CONNECTION_DISCONNECTED;
+          return;
+        case StreamPeerTCP::STATUS_CONNECTING:
+          connection_status=CONNECTION_CONNECTING;
+          return;
+        case StreamPeerTCP::STATUS_CONNECTED:
+          connection_status=CONNECTION_CONNECTED;
+          break;
+        case StreamPeerTCP::STATUS_ERROR:
+          connection_status=CONNECTION_DISCONNECTED;
+          return;
+        default:
+          return;
+      }
+
+      OS::get_singleton()->delay_usec(1000000);
+    }
 }
 
 
@@ -60,24 +86,49 @@ void NetworkedMultiplayerTCP::_bind_methods() {
 }
 
 Error NetworkedMultiplayerTCP::create_client(const IP_Address& p_ip, int p_port) {
-  bool is_connected = stream_peer->is_connected();
-  ERR_FAIL_COND_V(is_connected, ERR_ALREADY_IN_USE);
+  ERR_FAIL_COND_V(active, ERR_ALREADY_IN_USE);
 
   stream_peer->connect(p_ip, p_port);
+  connection_status=CONNECTION_CONNECTING;
+  active=true;
 
   return OK;
 }
 
 NetworkedMultiplayerTCP::NetworkedMultiplayerTCP() {
+  active=false;
   refuse_connections = false;
   unique_id = _gen_unique_id();
   target_peer = 0;
   transfer_mode = TRANSFER_MODE_RELIABLE;
   connection_status = CONNECTION_DISCONNECTED;
   stream_peer = StreamPeerTCP::create_ref();
-  set_stream_peer(stream_peer);
+  packet_peer_stream = Ref<PacketPeerStream>( memnew(PacketPeerStream) );
+  packet_peer_stream->set_stream_peer(stream_peer);
 }
 
 NetworkedMultiplayerTCP::~NetworkedMultiplayerTCP() {
   // TODO
+}
+
+Error NetworkedMultiplayerTCP::get_packet(const uint8_t **r_buffer,int &r_buffer_size) const {
+  return packet_peer_stream->get_packet(r_buffer, r_buffer_size);
+}
+
+
+Error NetworkedMultiplayerTCP::put_packet(const uint8_t *p_buffer,int p_buffer_size) {
+  return packet_peer_stream->put_packet(p_buffer, p_buffer_size);
+}
+
+int NetworkedMultiplayerTCP::get_max_packet_size() const {
+  return packet_peer_stream->get_max_packet_size();
+}
+
+int NetworkedMultiplayerTCP::get_available_packet_count() const {
+  return packet_peer_stream->get_max_packet_size();
+}
+
+bool NetworkedMultiplayerTCP::is_server() const {
+  return false;
+  // only client implemented
 }

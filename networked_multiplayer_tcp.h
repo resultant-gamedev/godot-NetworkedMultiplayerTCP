@@ -4,7 +4,7 @@
 #include "io/networked_multiplayer_peer.h"
 #include "io/stream_peer_tcp.h"
 
-class NetworkedMultiplayerTCP : public NetworkedMultiplayerPeer, public PacketPeerStream {
+class NetworkedMultiplayerTCP : public NetworkedMultiplayerPeer {
 
   OBJ_TYPE( NetworkedMultiplayerTCP, NetworkedMultiplayerPeer )
   //OBJ_TYPE( NetworkedMultiplayerTCP, PacketPeerStream );
@@ -34,8 +34,13 @@ public:
 
   Error create_client(const IP_Address& p_ip, int p_port);
 
+
+  Error get_packet(const uint8_t **r_buffer,int &r_buffer_size) const;
+  Error put_packet(const uint8_t *p_buffer,int p_buffer_size);
+  int get_max_packet_size() const;
+  int get_available_packet_count() const;
+
 private:
-  bool active;
   uint32_t unique_id;
   int target_peer;
   TransferMode transfer_mode;
@@ -44,6 +49,9 @@ private:
   uint32_t _gen_unique_id() const;
 
   Ref<StreamPeerTCP> stream_peer;
+  Ref<PacketPeerStream> packet_peer_stream;
+
+  bool active;
 };
 
 
