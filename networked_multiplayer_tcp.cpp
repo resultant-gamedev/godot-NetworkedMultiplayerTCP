@@ -3,7 +3,7 @@
 #include "networked_multiplayer_tcp.h"
 
 int NetworkedMultiplayerTCP::get_packet_peer() const {
-  // our only peer is server (ID 1?)
+  // our only peer is server (ID 1)
   return 1;
 }
 
@@ -44,6 +44,7 @@ void NetworkedMultiplayerTCP::poll() {
         case StreamPeerTCP::STATUS_NONE:
           if(connection_status != CONNECTION_DISCONNECTED) {
             connection_status=CONNECTION_DISCONNECTED;
+            emit_signal("peer_disconnected", 1); // our server
             emit_signal("server_disconnected");
           }
           return;
@@ -54,6 +55,7 @@ void NetworkedMultiplayerTCP::poll() {
           if(connection_status != CONNECTION_CONNECTED) {
             connection_status=CONNECTION_CONNECTED;
             emit_signal("connection_succeeded");
+            emit_signal("peer_connected", 1); // our server
           }
           break;
         case StreamPeerTCP::STATUS_ERROR:
