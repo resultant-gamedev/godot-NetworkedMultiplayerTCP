@@ -134,7 +134,7 @@ int NetworkedMultiplayerTCP::get_max_packet_size() const {
 }
 
 int NetworkedMultiplayerTCP::get_available_packet_count() const {
-  return packet_peer_stream->get_max_packet_size();
+  return packet_peer_stream->get_available_packet_count();
 }
 
 bool NetworkedMultiplayerTCP::is_server() const {
