@@ -117,7 +117,7 @@ NetworkedMultiplayerTCP::NetworkedMultiplayerTCP() {
 }
 
 NetworkedMultiplayerTCP::~NetworkedMultiplayerTCP() {
-  // TODO
+  close_connection();
 }
 
 Error NetworkedMultiplayerTCP::get_packet(const uint8_t **r_buffer,int &r_buffer_size) const {
@@ -138,6 +138,13 @@ int NetworkedMultiplayerTCP::get_available_packet_count() const {
 }
 
 bool NetworkedMultiplayerTCP::is_server() const {
-  return false;
-  // only client implemented
+  return false;  // only client implemented
+}
+
+void NetworkedMultiplayerTCP::close_connection() {
+
+  if (!active)
+    return;
+
+  stream_peer->disconnect();
 }

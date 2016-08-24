@@ -7,7 +7,6 @@
 class NetworkedMultiplayerTCP : public NetworkedMultiplayerPeer {
 
   OBJ_TYPE( NetworkedMultiplayerTCP, NetworkedMultiplayerPeer )
-  //OBJ_TYPE( NetworkedMultiplayerTCP, PacketPeerStream );
 
 protected:
   static void _bind_methods();
@@ -52,6 +51,8 @@ private:
   Ref<PacketPeerStream> packet_peer_stream;
 
   bool active;
+
+  void close_connection();
 };
 
 
