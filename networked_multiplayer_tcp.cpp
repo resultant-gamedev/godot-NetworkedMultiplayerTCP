@@ -3,10 +3,8 @@
 #include "networked_multiplayer_tcp.h"
 
 int NetworkedMultiplayerTCP::get_packet_peer() const {
-
-  // TODO
-
-  return 0;  // STUB
+  // our only peer is server (ID 1?)
+  return 1;
 }
 
 uint32_t NetworkedMultiplayerTCP::_gen_unique_id() const {
