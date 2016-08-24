@@ -44,16 +44,25 @@ void NetworkedMultiplayerTCP::poll() {
 
       switch( stream_peer->get_status() ) {
         case StreamPeerTCP::STATUS_NONE:
-          connection_status=CONNECTION_DISCONNECTED;
+          if(connection_status != CONNECTION_DISCONNECTED) {
+            connection_status=CONNECTION_DISCONNECTED;
+            emit_signal("server_disconnected");
+          }
           return;
         case StreamPeerTCP::STATUS_CONNECTING:
           connection_status=CONNECTION_CONNECTING;
           return;
         case StreamPeerTCP::STATUS_CONNECTED:
-          connection_status=CONNECTION_CONNECTED;
+          if(connection_status != CONNECTION_CONNECTED) {
+            connection_status=CONNECTION_CONNECTED;
+            emit_signal("connection_succeeded");
+          }
           break;
         case StreamPeerTCP::STATUS_ERROR:
-          connection_status=CONNECTION_DISCONNECTED;
+          if(connection_status != CONNECTION_DISCONNECTED) {
+            connection_status=CONNECTION_DISCONNECTED;
+            emit_signal("connection_failed");
+          }
           return;
         default:
           return;
